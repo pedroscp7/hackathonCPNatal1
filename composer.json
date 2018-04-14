@@ -1,6 +1,10 @@
 {
 	"name": "vandemberg/litologico",
     "description": "Biblioteca para gerar imagens do sistema lotologico",
+    "authors": [{
+            "name": "Vandemberg Lima",
+            "email": "vandemberg.silva.lima@gmail.com"
+        }],
     "require": {
         "dompdf/dompdf": "dev-master",
         "intervention/image": "^2.4"
