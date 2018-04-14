@@ -15,6 +15,7 @@
 			"folhelho_amarronzado",
 			"siltito_amarelado",
 			"solo_amarelado",
+			"cascalho"
 		];
 
 		function __construct($material, $profundidade)
@@ -41,7 +42,7 @@
 
 		public static function escala()
 		{
-			return 5;
+			return 100;
 		} 
 
 	}

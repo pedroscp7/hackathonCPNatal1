@@ -10,6 +10,8 @@
 	class ImagemLitologica {
 
 		private $blocos = [];
+		private $orientacao = "top-left";
+		private $ultimo_material;
 
 		public function __construct()
 		{
@@ -44,19 +46,45 @@
 			
 		}
 
-		public function criarImagem()
+		private function iniciar($largura_total, $profundidade)
+		{
+			$manager = new ImageManager(array('driver' => 'imagick'));
+			$imagem = $manager->make('../img/background.png')->resize($largura_total, $profundidade);
+			return $imagem;
+		}
+
+		private function inserir($imagem, $path, $pos_x, $pos_y)
+		{
+			$pos_x = intVal($pos_x);
+			$pos_y = intVal($pos_y);
+			$path = "../img/" . $path . ".png";
+
+			$imagem->insert($path, $this->orientacao, $pos_x, $pos_y);
+			
+			return $imagem;
+		}
+
+		public function criar()
 		{	
 
+			// Propriedades
 			$profundidade = $this->calculaProfundidade();
 			$profundidade_atual = 0;
 			$profundidade_bloco = Bloco::escala();
 			$largura_total = $this->largura();
 			$largura_inicial = 0;
 
-			$orientacao = "top-left";
-			$manager = new ImageManager(array('driver' => 'imagick'));
-			$image = $manager->make('../img/background.png')->resize($largura_total, $profundidade);
+			// Iniciando Classe para gerar imagem
+			$imagem = $this->iniciar($largura_total, $profundidade);
 
+			// Adiciona títulos
+			$imagem = $this->legenda($imagem,$largura_total,$profundidade);
+			// $path = $this->gerandoBloco();
+
+			// inserir imagem gerada código 
+			// 20%
+
+			
 			foreach($this->blocos as $bloco) {
 				// Pega o tipo do material
 				$material = $bloco->getMaterial();
@@ -72,22 +100,21 @@
 					$largura_inicial = 0;
 					while($largura_inicial <= $largura_primeira) {
 
-						if($largura_inicial < $largura_total * 0.40){
-							$image->insert("../img/" . $material . ".png", $orientacao, $largura_inicial, $inicial_profundidade);
-						}
-						
-						if(($largura_inicial + intval($largura_total * 0.25)) < intval($largura_total * 0.55)) {
-							$image->insert("../img/" . "agua" . ".png", $orientacao, $largura_inicial + intval($largura_total * 0.30),  $inicial_profundidade);
-						}
+						// Adiciona Poco
+						$imagem = $this->poco($imagem,
+											$largura_inicial,
+											$largura_total,
+											$material, 
+											$inicial_profundidade);
 
-						$image->insert("../img/" . $material . ".png", $orientacao, $largura_inicial + intval($largura_total * 0.60),  $inicial_profundidade);
-						$largura_inicial += 5;
+						$largura_inicial += Bloco::escala();
 					}
+
 					$inicial_profundidade += $profundidade_bloco;
 				}
 			}
 
-			$image->save("../files/" . $this->nome . ".jpg");
+			$imagem->save("../files/" . $this->nome . ".jpg");
 		}
 
 		public function verificarImagem()
@@ -98,6 +125,10 @@
 		public function getNome()
 		{
 			return $this->nome;
+		}
+
+		public function getPath() {
+			return "../files/" . $this->nome . ".jpg";
 		}
 
 		private function calculaProfundidade()
@@ -111,7 +142,39 @@
 
 		private function largura() 
 		{
-			return 20 * Bloco::escala();
+			return 3 * Bloco::escala() * 3;
+		}
+
+		public function poco($imagem, $largura_inicial, $largura_total, $material, $inicial_profundidade) {
+			
+			$largura_inicial_poco = $largura_inicial + ($largura_total * 0.2);
+			$largura_final_poco = $largura_total * 0.6;
+			$inicial_profundidade = $inicial_profundidade + (Bloco::escala() * 0.1);
+
+			if($largura_inicial < $largura_total * 0.40){							
+				$imagem = $this->inserir($imagem, $material, $largura_inicial, $inicial_profundidade);
+			}
+			
+			// Adiciona agua
+			if(($largura_inicial + intval($largura_total * 0.25)) < intval($largura_total * 0.55)) {
+				$pos_x  = $largura_inicial + intval($largura_total * 0.30);
+				$imagem  = $this->inserir($imagem, "agua", $pos_x,  $inicial_profundidade);
+			}
+
+			// Adiciona imagem da direita
+			$pox_x = $largura_inicial + intval($largura_total * 0.60);
+			$imagem = $this->inserir($imagem, $material, $pox_x,  $inicial_profundidade);
+			return $imagem;
+		}
+
+		public function legenda($imagem, $largura_total,$profundidade_total) {
+
+			$imagem = $this->inserir($imagem, "escala", $largura_total * 0.1, $profundidade_total * 0.1);
+			$imagem = $this->inserir($imagem, "reservatorio", $this->orientacao, $largura_total * 0.4, $profundidade_total * 0.1);
+			$imagem = $this->inserir($imagem, 'escala2', $this->orientacao, $largura_total * 0.7, $profundidade_total * 0.1);
+			$imagem = $this->inserir($imagem, 'litologia', $this->orientacao, $largura_total * 0.7, $profundidade_total * 0.1);
+
+			return $imagem;
 		}
 
 	}
