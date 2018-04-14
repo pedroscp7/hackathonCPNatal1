@@ -1,5 +1,5 @@
 # TIME BLUBOX
-* vandemberg Lima
+* Vandemberg Lima
 * Patricia Regis
 * Diego Marcelino
 
@@ -19,9 +19,9 @@ Todas as imagens geradas ficam salvas em path_do_projeto/files
 
 Contrutor vazio!
 
-*getX(): largura da imagem
-*getY(): altura da imagem
-*addBloco(tipo_do_material: string, profunidade_material)
-*criar(): gera a imagem
-*verificaImagem(): verifica se a imagem foi criada. (retorna um true ou false)
-*getNome(): Pega o nome da imagem que foi ferada. (Um hash do timestamp)
+* getX(): largura da imagem
+* getY(): altura da imagem
+* addBloco(tipo_do_material: string, profunidade_material)
+* criar(): gera a imagem
+* verificaImagem(): verifica se a imagem foi criada. (retorna um true ou false)
+* getNome(): Pega o nome da imagem que foi ferada. (Um hash do timestamp)
