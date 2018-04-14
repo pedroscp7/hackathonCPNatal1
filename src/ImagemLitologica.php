@@ -49,7 +49,7 @@
 
 			$profundidade = $this->calculaProfundidade();
 			$profundidade_atual = 0;
-			$profundidade_bloco = 5;
+			$profundidade_bloco = Bloco::escala();
 			$largura_total = $this->largura();
 			$largura_inicial = 0;
 
@@ -58,8 +58,7 @@
 			$image = $manager->make('../img/background.png')->resize($largura_total, $profundidade);
 
 			foreach($this->blocos as $bloco) {
-				// Define bloco
-
+				// Pega o tipo do material
 				$material = $bloco->getMaterial();
 
 				// Define onde começa e onde termina o bloco
@@ -107,12 +106,12 @@
 			foreach($this->blocos as $bloco) {
 				$profundidade_total += $bloco->getProfundidade();
 			}
-			return $profundidade_total * 5;
+			return $profundidade_total * Bloco::escala();
 		}
 
 		private function largura() 
 		{
-			return 100;
+			return 20 * Bloco::escala();
 		}
 
 	}

@@ -5,7 +5,6 @@
 
 		private $material;
 		private $profundidade;
-
 		private $tipos_materiais = [
 			"agua",
 			"arenito_amarelo",
@@ -39,5 +38,10 @@
 		{
 			return $this->profundidade;
 		}
+
+		public static function escala()
+		{
+			return 5;
+		} 
 
 	}
