@@ -54,13 +54,10 @@
 		}
 
 		private function inserir($imagem, $path, $pos_x, $pos_y)
-		{
+		{	
 			$pos_x = intVal($pos_x);
 			$pos_y = intVal($pos_y);
-			$path = "../img/" . $path . ".png";
-
 			$imagem->insert($path, $this->orientacao, $pos_x, $pos_y);
-			
 			return $imagem;
 		}
 
@@ -72,49 +69,33 @@
 			$profundidade_atual = 0;
 			$profundidade_bloco = Bloco::escala();
 			$largura_total = $this->largura();
-			$largura_inicial = 0;
+			$largura_atual = 0;
 
 			// Iniciando Classe para gerar imagem
-			$imagem = $this->iniciar($largura_total, $profundidade);
-
-			// Adiciona títulos
-			$imagem = $this->legenda($imagem,$largura_total,$profundidade);
-			// $path = $this->gerandoBloco();
-
-			// inserir imagem gerada código 
-			// 20%
-
+			$poco = $this->iniciar($largura_total, $profundidade);
 			
 			foreach($this->blocos as $bloco) {
-				// Pega o tipo do material
-				$material = $bloco->getMaterial();
+				$largura = $largura_total;
+				$imagem = $this->inserindoBloco(
+					$poco, 
+					$bloco,
+					$profundidade, 
+					$largura, 
+					$profundidade_atual, 
+					$largura_atual);
 
-				// Define onde começa e onde termina o bloco
-				$inicial_profundidade = $profundidade_atual;
-				$fim_profundidade = $inicial_profundidade + ($bloco->getProfundidade() * $profundidade_bloco);
-				$profundidade_atual = $fim_profundidade;
+				$profundidade_atual += ($bloco->getProfundidade() * Bloco::escala());
 
-				$largura_primeira = intval($largura_total * 0.45);
-				while($inicial_profundidade <= $fim_profundidade) {
-
-					$largura_inicial = 0;
-					while($largura_inicial <= $largura_primeira) {
-
-						// Adiciona Poco
-						$imagem = $this->poco($imagem,
-											$largura_inicial,
-											$largura_total,
-											$material, 
-											$inicial_profundidade);
-
-						$largura_inicial += Bloco::escala();
-					}
-
-					$inicial_profundidade += $profundidade_bloco;
-				}
 			}
 
-			$imagem->save("../files/" . $this->nome . ".jpg");
+			// Inserindo a agua
+			$profundidade_bloco = $profundidade_atual;
+			$pos_x = intVal($largura_total * 0.2);
+			$pos_y = 0;
+			$path_bloco = $this->geraBloco("agua", $pos_x, $profundidade_bloco);
+			$poco = $this->inserir($poco, $path_bloco, intVal($this->largura() * 0.4), 0);			
+			unlink($path_bloco);
+			$poco->save("../files/" . $this->nome . ".jpg");
 		}
 
 		public function verificarImagem()
@@ -162,19 +143,45 @@
 			}
 
 			// Adiciona imagem da direita
-			$pox_x = $largura_inicial + intval($largura_total * 0.60);
-			$imagem = $this->inserir($imagem, $material, $pox_x,  $inicial_profundidade);
+			$pos_x = $largura_inicial + intval($largura_total * 0.60);
+			$imagem = $this->inserir($imagem, $material, $pos_x,  $inicial_profundidade);
 			return $imagem;
 		}
 
-		public function legenda($imagem, $largura_total,$profundidade_total) {
+		public function inserindoBloco($imagem, $bloco, $profundidade,$largura, $profundidade_atual, $largura_atual) {
 
-			$imagem = $this->inserir($imagem, "escala", $largura_total * 0.1, $profundidade_total * 0.1);
-			$imagem = $this->inserir($imagem, "reservatorio", $this->orientacao, $largura_total * 0.4, $profundidade_total * 0.1);
-			$imagem = $this->inserir($imagem, 'escala2', $this->orientacao, $largura_total * 0.7, $profundidade_total * 0.1);
-			$imagem = $this->inserir($imagem, 'litologia', $this->orientacao, $largura_total * 0.7, $profundidade_total * 0.1);
+			// Calculando posições
+			$profundidade_bloco = $bloco->getProfundidade() * Bloco::escala();
+			$pos_x = intVal($largura);
+			$pos_y = $profundidade_atual;
+
+			$path_bloco = $this->geraBloco($bloco->getMaterial(), $pos_x, $profundidade_bloco);
+
+			$imagem = $this->inserir($imagem, $path_bloco, $largura_atual, $profundidade_atual);
+			// Deleta imagem gerada
+			unlink($path_bloco);
 
 			return $imagem;
+		}
+
+		public function geraBloco($material, $largura, $profundidade)
+		{
+			$nome_bloco = "bloco_" . $material . date("H-m-s");
+			$path_bloco = "../path/" . $nome_bloco . ".png";
+			$manager = new ImageManager(array('driver' => 'imagick'));
+			$path = "../img/" . $material . ".png";
+			$bloco = $manager->make($path)->resize($largura, $profundidade);
+			$bloco->save($path_bloco);
+			return $path_bloco;
+		}
+
+
+		public function getX(){
+			return $this->largura();
+		}
+
+		public function getY(){
+			return $this->calculaProfundidade();
 		}
 
 	}

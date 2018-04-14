@@ -16,6 +16,10 @@
 	}
 
 	$litologica->criar();
+
+	$x = $litologica->getX();
+	$y = $litologica->getY();
+
 	$img = $litologica->getNome();
-	echo "<img src='/files/{$img}.jpg' width='600' height='1000' />";
+	echo "<img src='/files/{$img}.jpg' width='{$x}' height='{$y}' />";
 
